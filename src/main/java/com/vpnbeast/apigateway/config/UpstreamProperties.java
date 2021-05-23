@@ -8,10 +8,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class UpstreamProperties {
 
-    @Value("${api-gateway.vpnbeast-service}")
+    @Value("${api-gateway.upstream.vpnbeast-service}")
     private String vpnbeastServiceUrl;
 
-    @Value("${api-gateway.auth-service}")
+    @Value("${api-gateway.upstream.auth-service}")
     private String authServiceUrl;
 
 }
