@@ -1,6 +1,6 @@
 package com.vpnbeast.apigateway.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
@@ -9,21 +9,22 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableHystrix
+@RequiredArgsConstructor
 public class GatewayConfig {
 
-    @Autowired
-    AuthenticationFilter filter;
+    private final AuthenticationFilter filter;
+    private final UpstreamProperties upstreamProperties;
 
     @Bean
     public RouteLocator routes(RouteLocatorBuilder builder) {
         return builder.routes()
-                .route("user-service", r -> r.path("/users/**")
+                .route("vpnbeast-service", r -> r.path("/users/**", "/servers/**", "/admin/**")
                         .filters(f -> f.filter(filter))
-                        .uri("lb://user-service"))
+                        .uri(upstreamProperties.getVpnbeastServiceUrl()))
 
                 .route("auth-service", r -> r.path("/auth/**")
                         .filters(f -> f.filter(filter))
-                        .uri("lb://auth-service"))
+                        .uri(upstreamProperties.getAuthServiceUrl()))
                 .build();
     }
 
