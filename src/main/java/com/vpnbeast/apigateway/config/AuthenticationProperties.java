@@ -8,14 +8,10 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 @Setter
 @Configuration
-@ConfigurationProperties(prefix = "vpnbeast-service.security")
+@ConfigurationProperties(prefix = "api-gateway.security")
 public class AuthenticationProperties {
 
-    private String issuer;
     private String publicKeyString;
     private String privateKeyString;
-    private Long accessTokenValidInMinutes;
-    private Long refreshTokenValidInMinutes;
-    private Long verificationCodeValidInMinutes;
 
 }

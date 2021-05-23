@@ -36,18 +36,19 @@ public class JwtUtil {
     }
 
     public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = Jwts.parser().setSigningKey(getPublicKey(authenticationProperties.getPublicKeyString()))
+        final Claims claims = Jwts.parserBuilder().setSigningKey(getPublicKey(authenticationProperties.getPublicKeyString()))
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
         return claimsResolver.apply(claims);
     }
 
     private boolean isTokenExpired(String token) {
-        return this.getAllClaimsFromToken(token).getExpiration().before(new Date());
+        return getAllClaimsFromToken(token).getExpiration().before(new Date());
     }
 
     public boolean isInvalid(String token) {
-        return this.isTokenExpired(token);
+        return isTokenExpired(token);
     }
 
     private RSAPrivateKey getPrivateKey(String key) {

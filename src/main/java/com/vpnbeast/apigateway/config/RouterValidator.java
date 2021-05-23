@@ -8,14 +8,15 @@ import java.util.function.Predicate;
 @Component
 public class RouterValidator {
 
-    public static final List<String> openApiEndpoints = List.of(
-            "/auth/register",
-            "/auth/login"
+    public static final List<String> AUTH_WHITELIST = List.of(
+            "/auth/authenticate",
+            "/users/register",
+            "/users/reset-password",
+            "/users/verify",
+            "/users/resend-verification-code"
     );
 
-    public Predicate<ServerHttpRequest> isSecured =
-            request -> openApiEndpoints
-                    .stream()
-                    .noneMatch(uri -> request.getURI().getPath().contains(uri));
+    public Predicate<ServerHttpRequest> isSecured = request -> AUTH_WHITELIST
+            .stream().noneMatch(uri -> request.getURI().getPath().contains(uri));
 
 }

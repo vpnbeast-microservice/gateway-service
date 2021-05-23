@@ -1,17 +1,17 @@
 package com.vpnbeast.apigateway.config;
 
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
 @Getter
-@Component
+@Setter
+@Configuration
+@ConfigurationProperties(prefix = "api-gateway.upstream")
 public class UpstreamProperties {
 
-    @Value("${api-gateway.upstream.vpnbeast-service}")
     private String vpnbeastServiceUrl;
-
-    @Value("${api-gateway.upstream.auth-service}")
     private String authServiceUrl;
 
 }

@@ -13,8 +13,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.util.Arrays;
-
 @Slf4j
 @Component
 @RefreshScope
@@ -23,30 +21,24 @@ public class AuthenticationFilter implements GatewayFilter {
 
     private final RouterValidator routerValidator;
     private final JwtUtil jwtUtil;
-    private static final String[] AUTH_WHITELIST = {
-            "/auth/authenticate",
-            "/users/register",
-            "/users/reset-password",
-            "/users/verify",
-            "/users/resend-verification-code",
-    };
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
 
-        if (!Arrays.asList(AUTH_WHITELIST).contains(request.getPath().value())) {
-            if (routerValidator.isSecured.test(request)) {
-                if (this.isAuthMissing(request))
-                    return onError(exchange, "Authorization header is missing in request", HttpStatus.UNAUTHORIZED);
+        if (routerValidator.isSecured.test(request)) {
+            if (this.isAuthMissing(request))
+                return onError(exchange, "Authorization header is missing in request", HttpStatus.UNAUTHORIZED);
 
-                final String token = this.getAuthHeader(request);
+            final String token = this.getAuthHeader(request);
+            log.info("token = {}", token);
 
-                if (jwtUtil.isInvalid(token))
-                    return onError(exchange, "Authorization header is invalid", HttpStatus.UNAUTHORIZED);
-
-                populateRequestWithHeaders(exchange, token);
+            if (jwtUtil.isInvalid(token)) {
+                log.info("token is invalid");
+                return onError(exchange, "Authorization header is invalid", HttpStatus.UNAUTHORIZED);
             }
+
+            populateRequestWithHeaders(exchange, token);
         }
 
         return chain.filter(exchange);
