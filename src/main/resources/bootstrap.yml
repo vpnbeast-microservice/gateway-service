@@ -2,7 +2,7 @@
 
 spring:
   application:
-    name: api-gateway
+    name: gateway-service
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}
   cloud:

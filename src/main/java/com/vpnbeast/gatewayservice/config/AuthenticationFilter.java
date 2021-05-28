@@ -1,4 +1,4 @@
-package com.vpnbeast.apigateway.config;
+package com.vpnbeast.gatewayservice.config;
 
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;

@@ -1,0 +1,62 @@
+---
+
+# https://docs.github.com/en/actions/guides/building-and-testing-java-with-maven
+
+name: CI
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  mvn_verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up our JDK environment
+        uses: actions/setup-java@v1.4.3
+        with:
+          java-version: 11
+          java-package: jdk
+          architecture: x64
+      - name: Run the Maven test phase
+        run: |
+          mvn clean verify
+
+  dockerize_and_commit:
+    needs:
+      - mvn_verify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up our JDK environment
+        uses: actions/setup-java@v1.4.3
+        with:
+          java-version: 11
+          java-package: jdk
+          architecture: x64
+      - name: Set tag.sh executable
+        run: chmod +x ci-scripts/tag.sh
+      - name: Run tag.sh
+        run: /bin/bash ci-scripts/tag.sh
+      - name: Set release_version variable
+        run: echo "release_version=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec | cut -d "=" -f 2)" >> $GITHUB_ENV
+      - name: Run the Maven package phase
+        run: mvn clean package
+      - name: Build and tag Docker image
+        run: |
+          docker build . --file Dockerfile --build-arg JAR_FILE=target/gateway-service-${{ env.release_version }}.jar --tag vpnbeast/gateway-service:latest
+          docker tag vpnbeast/gateway-service:latest vpnbeast/gateway-service:${{ env.release_version }}
+      - name: Publish to Registry
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: vpnbeast/gateway-service
+          tags: "latest,${{ env.release_version }}"
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Set commit.sh executable
+        run: chmod +x ci-scripts/commit.sh
+      - name: Run commit.sh
+        run: /bin/bash ci-scripts/commit.sh ${{ secrets.GITHUB_TOKEN }} ${{ env.release_version }}

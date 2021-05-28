@@ -1,4 +1,4 @@
-package com.vpnbeast.apigateway.config;
+package com.vpnbeast.gatewayservice.config;
 
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;

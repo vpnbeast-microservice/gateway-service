@@ -1,4 +1,4 @@
-package com.vpnbeast.apigateway.config;
+package com.vpnbeast.gatewayservice.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.gateway.route.RouteLocator;

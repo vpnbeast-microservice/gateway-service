@@ -1,13 +1,13 @@
-package com.vpnbeast.apigateway;
+package com.vpnbeast.gatewayservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ApiGatewayApplication {
+public class GatewayServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ApiGatewayApplication.class, args);
+        SpringApplication.run(GatewayServiceApplication.class, args);
     }
 
 }

@@ -1,0 +1,24 @@
+{{- if .Values.gateway.enabled -}}
+
+---
+
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: gateway-service
+spec:
+  hosts:
+  - api.thevpnbeast.com
+  gateways:
+  - 'istio-system/istio-ingressgateway'
+  http:
+  - route:
+    - destination:
+        port:
+          number: {{ .Values.deployment.serverPort }}
+        host: {{ .Values.deployment.name | quote }}
+    match:
+    - uri:
+        prefix: /
+
+{{- end }}
