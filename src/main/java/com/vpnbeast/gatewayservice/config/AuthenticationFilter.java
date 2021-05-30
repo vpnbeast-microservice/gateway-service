@@ -1,5 +1,6 @@
 package com.vpnbeast.gatewayservice.config;
 
+import com.vpnbeast.gatewayservice.service.JwtService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+
 @Slf4j
 @Component
 @RefreshScope
@@ -20,25 +23,24 @@ import reactor.core.publisher.Mono;
 public class AuthenticationFilter implements GatewayFilter {
 
     private final RouterValidator routerValidator;
-    private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
-
         if (routerValidator.isSecured.test(request)) {
             if (this.isAuthMissing(request))
                 return onError(exchange, "Authorization header is missing in request", HttpStatus.UNAUTHORIZED);
 
-            final String token = this.getAuthHeader(request);
+            final String token = this.getAuthHeader(request).substring(7);
             log.info("token = {}", token);
 
-            if (jwtUtil.isInvalid(token)) {
+            if (!jwtService.isTokenValid(token)) {
                 log.info("token is invalid");
                 return onError(exchange, "Authorization header is invalid", HttpStatus.UNAUTHORIZED);
             }
 
-            populateRequestWithHeaders(exchange, token);
+            populateRequestWithHeaders(exchange, token, jwtService.getUsernameFromToken(token));
         }
 
         return chain.filter(exchange);
@@ -58,11 +60,13 @@ public class AuthenticationFilter implements GatewayFilter {
         return !request.getHeaders().containsKey("Authorization");
     }
 
-    private void populateRequestWithHeaders(ServerWebExchange exchange, String token) {
-        Claims claims = jwtUtil.getAllClaimsFromToken(token);
+    private void populateRequestWithHeaders(ServerWebExchange exchange, String token, String username) {
+        Claims claims = jwtService.getAllClaimsFromToken(token);
+        String rolesString = String.join(", ", claims.get("roles", ArrayList.class));
+        log.info("adding below headers to request:\nusername={}\nroles={}", username, rolesString);
         exchange.getRequest().mutate()
-                .header("id", String.valueOf(claims.get("id")))
-                .header("role", String.valueOf(claims.get("role")))
+                .header("username", username)
+                .header("roles", rolesString)
                 .build();
     }
 }

@@ -1,10 +1,13 @@
-package com.vpnbeast.gatewayservice.config;
+package com.vpnbeast.gatewayservice.service.impl;
 
+import com.vpnbeast.gatewayservice.config.AuthenticationProperties;
+import com.vpnbeast.gatewayservice.service.JwtService;
+import com.vpnbeast.gatewayservice.util.DateUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -13,24 +16,41 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.function.Function;
 
 @Slf4j
-@Component
+@Service
 @RequiredArgsConstructor
-public class JwtUtil {
+public class JwtServiceImpl implements JwtService {
 
     private final AuthenticationProperties authenticationProperties;
 
+    @Override
+    public Boolean validateToken(String token, String username) {
+        // TODO: implement
+        return null;
+    }
+
+    @Override
+    public ArrayList getRolesFromToken(String token) {
+        Claims jwsMap = Jwts.parser().setSigningKey(getPublicKey(authenticationProperties.getPublicKeyString()))
+                .parseClaimsJws(token)
+                .getBody();
+        return jwsMap.get("roles", ArrayList.class);
+    }
+
+    @Override
     public Claims getAllClaimsFromToken(String token) {
-        return Jwts.parserBuilder().setSigningKey(getPrivateKey(authenticationProperties.getPrivateKeyString()))
-                .build()
+        return Jwts.parser().setSigningKey(getPrivateKey(authenticationProperties.getPrivateKeyString()))
                 .parseClaimsJws(token)
                 .getBody();
     }
 
+    @Override
     public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = Jwts.parserBuilder().setSigningKey(getPublicKey(authenticationProperties.getPublicKeyString()))
                 .build()
@@ -39,15 +59,23 @@ public class JwtUtil {
         return claimsResolver.apply(claims);
     }
 
-    private boolean isTokenExpired(String token) {
-        return getAllClaimsFromToken(token).getExpiration().before(new Date());
+    @Override
+    public String getUsernameFromToken(String token) {
+        return getClaimFromToken(token, Claims::getSubject);
     }
 
-    public boolean isInvalid(String token) {
-        return isTokenExpired(token);
+    @Override
+    public Boolean isTokenValid(String token) {
+        return DateUtil.convertDateToLocalDateTime(getClaimFromToken(token, Claims::getExpiration))
+                .isAfter(DateUtil.getCurrentLocalDateTime());
     }
 
-    private RSAPrivateKey getPrivateKey(String key) {
+    @Override
+    public LocalDateTime getExpiresAt(String token) {
+        return DateUtil.convertDateToLocalDateTime(getClaimFromToken(token, Claims::getExpiration));
+    }
+
+    private static RSAPrivateKey getPrivateKey(String key) {
         try {
             byte[] encoded = Base64.getMimeDecoder().decode(key);
             KeyFactory kf = KeyFactory.getInstance("RSA");

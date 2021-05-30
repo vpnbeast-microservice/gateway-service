@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 @Setter
 @Configuration
-@ConfigurationProperties(prefix = "api-gateway.security")
+@ConfigurationProperties(prefix = "gateway-service.security")
 public class AuthenticationProperties {
 
     private String publicKeyString;
