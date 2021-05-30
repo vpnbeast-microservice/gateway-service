@@ -1,4 +1,4 @@
-package com.vpnbeast.gatewayservice.config;
+package com.vpnbeast.gatewayservice.configuration;
 
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
@@ -17,6 +17,7 @@ public class RouterValidator {
     );
 
     public Predicate<ServerHttpRequest> isSecured = request -> AUTH_WHITELIST
-            .stream().noneMatch(uri -> request.getURI().getPath().contains(uri));
+            .stream()
+            .noneMatch(uri -> request.getURI().getPath().contains(uri));
 
 }

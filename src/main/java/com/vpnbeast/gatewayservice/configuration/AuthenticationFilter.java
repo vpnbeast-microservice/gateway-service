@@ -1,4 +1,4 @@
-package com.vpnbeast.gatewayservice.config;
+package com.vpnbeast.gatewayservice.configuration;
 
 import com.vpnbeast.gatewayservice.service.JwtService;
 import io.jsonwebtoken.Claims;
@@ -13,7 +13,6 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-
 import java.util.ArrayList;
 
 @Slf4j
@@ -29,10 +28,10 @@ public class AuthenticationFilter implements GatewayFilter {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         if (routerValidator.isSecured.test(request)) {
-            if (this.isAuthMissing(request))
+            if (isAuthMissing(request))
                 return onError(exchange, "Authorization header is missing in request", HttpStatus.UNAUTHORIZED);
 
-            final String token = this.getAuthHeader(request).substring(7);
+            final String token = getAuthHeader(request).substring(7);
             log.info("token = {}", token);
 
             if (!jwtService.isTokenValid(token)) {

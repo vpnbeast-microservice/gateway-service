@@ -1,4 +1,4 @@
-package com.vpnbeast.gatewayservice.config;
+package com.vpnbeast.gatewayservice.configuration;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,4 +1,4 @@
-package com.vpnbeast.gatewayservice.config;
+package com.vpnbeast.gatewayservice.configuration;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.gateway.route.RouteLocator;
@@ -17,13 +17,19 @@ public class GatewayConfig {
 
     @Bean
     public RouteLocator routes(RouteLocatorBuilder builder) {
+        // TODO: looks like fallback not running
         return builder.routes()
                 .route("vpnbeast-service", r -> r.path("/users/**", "/servers/**", "/admin/**")
-                        .filters(f -> f.filter(filter))
-                        .uri(upstreamProperties.getVpnbeastServiceUrl()))
+                        .filters(f -> f.filter(filter).hystrix(config -> config
+                                .setName("fallback1")
+                                .setFallbackUri("forward:/fallback")))
+                        .uri(upstreamProperties.getVpnbeastServiceUrl())
+                        .filters())
 
                 .route("auth-service", r -> r.path("/auth/**")
-                        .filters(f -> f.filter(filter))
+                        .filters(f -> f.filter(filter).hystrix(config -> config
+                                .setName("fallback2")
+                                .setFallbackUri("forward:/fallback")))
                         .uri(upstreamProperties.getAuthServiceUrl()))
                 .build();
     }

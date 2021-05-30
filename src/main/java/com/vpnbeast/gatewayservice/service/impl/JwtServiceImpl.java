@@ -1,6 +1,6 @@
 package com.vpnbeast.gatewayservice.service.impl;
 
-import com.vpnbeast.gatewayservice.config.AuthenticationProperties;
+import com.vpnbeast.gatewayservice.configuration.AuthenticationProperties;
 import com.vpnbeast.gatewayservice.service.JwtService;
 import com.vpnbeast.gatewayservice.util.DateUtil;
 import io.jsonwebtoken.Claims;
@@ -19,7 +19,6 @@ import java.security.spec.X509EncodedKeySpec;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Date;
 import java.util.function.Function;
 
 @Slf4j
