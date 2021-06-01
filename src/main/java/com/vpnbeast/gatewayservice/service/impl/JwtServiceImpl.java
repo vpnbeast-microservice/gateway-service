@@ -1,9 +1,13 @@
 package com.vpnbeast.gatewayservice.service.impl;
 
+import com.vpnbeast.gatewayservice.client.AuthServiceClient;
 import com.vpnbeast.gatewayservice.configuration.AuthenticationProperties;
+import com.vpnbeast.gatewayservice.model.UserRequest;
+import com.vpnbeast.gatewayservice.model.UserResponse;
 import com.vpnbeast.gatewayservice.service.JwtService;
 import com.vpnbeast.gatewayservice.util.DateUtil;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +22,7 @@ import java.security.spec.X509EncodedKeySpec;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Date;
 import java.util.function.Function;
 
 @Slf4j
@@ -26,11 +31,16 @@ import java.util.function.Function;
 public class JwtServiceImpl implements JwtService {
 
     private final AuthenticationProperties authenticationProperties;
+    private final AuthServiceClient authServiceClient;
 
     @Override
-    public Boolean validateToken(String token, String username) {
-        // TODO: implement
-        return null;
+    public Boolean isTokenValid(String token) {
+        final Date expiration = getClaimFromToken(token, Claims::getExpiration);
+        final boolean isExpired = expiration.before(new Date());
+        final UserRequest request = UserRequest.builder()
+                .userName(getUsernameFromToken(token))
+                .build();
+        return (authServiceClient.isValidUser(request).getStatus() && !isExpired);
     }
 
     @Override
@@ -60,12 +70,6 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
-    }
-
-    @Override
-    public Boolean isTokenValid(String token) {
-        return DateUtil.convertDateToLocalDateTime(getClaimFromToken(token, Claims::getExpiration))
-                .isAfter(DateUtil.getCurrentLocalDateTime());
     }
 
     @Override

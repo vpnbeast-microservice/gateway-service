@@ -2,6 +2,8 @@ package com.vpnbeast.gatewayservice.configuration;
 
 import com.vpnbeast.gatewayservice.service.HttpService;
 import com.vpnbeast.gatewayservice.service.JwtService;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -32,13 +34,20 @@ public class AuthenticationFilter implements GatewayFilter {
                         HttpStatus.UNAUTHORIZED);
 
             final String token = httpService.getAuthHeader(request).substring(7);
-
-            if (!jwtService.isTokenValid(token)) {
-                log.info("token is invalid");
-                return httpService.onError(exchange, "Authorization header is invalid", HttpStatus.UNAUTHORIZED);
+            try {
+                // TODO: test token is not expired but no valid user case
+                if (!jwtService.isTokenValid(token)) {
+                    log.warn("no such user with provided token {}", token);
+                    return httpService.onError(exchange, "No such user with provided token", HttpStatus.UNAUTHORIZED);
+                }
+            } catch (ExpiredJwtException exception) {
+                log.warn(exception.getMessage(), exception.fillInStackTrace());
+                return httpService.onError(exchange, "Given Jwt token already expired!", HttpStatus.UNAUTHORIZED);
+            } catch (SignatureException exception) {
+                log.warn(exception.getMessage(), exception.fillInStackTrace());
+                return httpService.onError(exchange, "Unable to verify RSA signature using configured PublicKey!",
+                        HttpStatus.BAD_REQUEST);
             }
-
-            // TODO: check if token is expired
 
             httpService.populateRequestWithHeaders(exchange, token, jwtService.getUsernameFromToken(token));
         }
