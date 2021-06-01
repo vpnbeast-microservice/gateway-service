@@ -18,15 +18,17 @@ public class GatewayConfig {
     @Bean
     public RouteLocator routes(RouteLocatorBuilder builder) {
         // TODO: looks like fallback not running
+        // "/users/**", "/servers/**", "/admin/**"
+
         return builder.routes()
-                .route("vpnbeast-service", r -> r.path("/users/**", "/servers/**", "/admin/**")
+                .route("vpnbeast-service", r -> r.path(upstreamProperties.getVpnbeastServiceUris())
                         .filters(f -> f.filter(filter).hystrix(config -> config
                                 .setName("fallback1")
                                 .setFallbackUri("forward:/fallback")))
                         .uri(upstreamProperties.getVpnbeastServiceUrl())
                         .filters())
 
-                .route("auth-service", r -> r.path("/auth/**")
+                .route("auth-service", r -> r.path(upstreamProperties.getAuthServiceUris())
                         .filters(f -> f.filter(filter).hystrix(config -> config
                                 .setName("fallback2")
                                 .setFallbackUri("forward:/fallback")))
