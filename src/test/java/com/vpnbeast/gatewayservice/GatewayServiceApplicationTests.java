@@ -7,8 +7,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest(properties = {
         "spring.cloud.config.enabled=false",
         "gateway-service.client.auth-service.listOfServers=http://localhost:5000",
-        "gateway-service.upstream.vpnbeastServiceUrl=http://localhost:9090",
-        "gateway-service.upstream.authServiceUrl=http://localhost:5000"})
+        "gateway-service.upstream.vpnbeast-service.url=http://localhost:9090",
+        "gateway-service.upstream.vpnbeast-service.uris='/users/**,/servers/**,/admin/**'",
+        "gateway-service.upstream.auth-service.url=http://localhost:5000",
+        "gateway-service.upstream.auth-service.uris='/auth/**'"})
 class GatewayServiceApplicationTests {
 
     @Test
