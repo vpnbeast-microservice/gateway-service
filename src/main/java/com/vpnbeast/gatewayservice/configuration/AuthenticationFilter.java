@@ -1,9 +1,11 @@
 package com.vpnbeast.gatewayservice.configuration;
 
 import com.vpnbeast.gatewayservice.client.AuthServiceClient;
+import com.vpnbeast.gatewayservice.exception.BusinessException;
 import com.vpnbeast.gatewayservice.model.ValidateTokenRequest;
 import com.vpnbeast.gatewayservice.model.ValidateTokenResponse;
 import com.vpnbeast.gatewayservice.service.HttpService;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -44,14 +46,17 @@ public class AuthenticationFilter implements GatewayFilter {
                         HttpStatus.UNAUTHORIZED);
 
             final String token = httpService.getAuthHeader(request).substring(7);
-            final ValidateTokenResponse validateTokenResponse = authServiceClient.validateToken(ValidateTokenRequest
-                    .builder()
-                    .token(token)
-                    .build());
-
-            if (!validateTokenResponse.getStatus()) {
-                log.warn("an error occured while validating token: {}", validateTokenResponse.getErrorMessage());
-                return httpService.onError(exchange, validateTokenResponse.getErrorMessage(), HttpStatus.valueOf(validateTokenResponse.getHttpCode()));
+            ValidateTokenResponse validateTokenResponse;
+            try {
+                validateTokenResponse = authServiceClient.validateToken(ValidateTokenRequest
+                        .builder()
+                        .token(token)
+                        .build());
+            } catch (BusinessException exception) {
+                // TODO: better way to handle that. when auth-service puts 401 on the response, response body is empty
+                if (exception.getHttpCode() == 400)
+                    return httpService.onError(exchange, exception.getErrorMessage(), HttpStatus.UNAUTHORIZED);
+                return httpService.onError(exchange, exception.getErrorMessage(), HttpStatus.valueOf(exception.getHttpCode()));
             }
 
             httpService.populateRequestWithHeaders(exchange, validateTokenResponse.getRoles(), validateTokenResponse.getUsername());

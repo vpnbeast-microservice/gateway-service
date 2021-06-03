@@ -2,7 +2,7 @@ package com.vpnbeast.gatewayservice.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vpnbeast.gatewayservice.model.ExceptionInfo;
+import com.vpnbeast.gatewayservice.exception.ExceptionInfo;
 import com.vpnbeast.gatewayservice.service.HttpService;
 import com.vpnbeast.gatewayservice.util.DateUtil;
 import lombok.RequiredArgsConstructor;
