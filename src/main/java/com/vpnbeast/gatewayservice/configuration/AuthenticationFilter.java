@@ -1,7 +1,12 @@
 package com.vpnbeast.gatewayservice.configuration;
 
+import com.vpnbeast.gatewayservice.client.AuthServiceClient;
+import com.vpnbeast.gatewayservice.model.UserRequest;
+import com.vpnbeast.gatewayservice.model.ValidateTokenRequest;
+import com.vpnbeast.gatewayservice.model.ValidateTokenResponse;
 import com.vpnbeast.gatewayservice.service.HttpService;
 import com.vpnbeast.gatewayservice.service.JwtService;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +20,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.Date;
+
 @Slf4j
 @Component
 @RefreshScope
@@ -24,6 +31,17 @@ public class AuthenticationFilter implements GatewayFilter {
     private final RouterValidator routerValidator;
     private final JwtService jwtService;
     private final HttpService httpService;
+    private final AuthServiceClient authServiceClient;
+
+    /*@Override
+    public Boolean isTokenValid(String token) {
+        final Date expiration = getClaimFromToken(token, Claims::getExpiration);
+        final boolean isExpired = expiration.before(new Date());
+        final UserRequest request = UserRequest.builder()
+                .userName(getUsernameFromToken(token))
+                .build();
+        return (authServiceClient.isValidUser(request).getStatus() && !isExpired);
+    }*/
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -34,19 +52,14 @@ public class AuthenticationFilter implements GatewayFilter {
                         HttpStatus.UNAUTHORIZED);
 
             final String token = httpService.getAuthHeader(request).substring(7);
-            try {
-                // TODO: test token is not expired but no valid user case
-                if (!jwtService.isTokenValid(token)) {
-                    log.warn("no such user with provided token {}", token);
-                    return httpService.onError(exchange, "No such user with provided token", HttpStatus.UNAUTHORIZED);
-                }
-            } catch (ExpiredJwtException exception) {
-                log.warn(exception.getMessage(), exception.fillInStackTrace());
-                return httpService.onError(exchange, "Given Jwt token already expired!", HttpStatus.UNAUTHORIZED);
-            } catch (SignatureException exception) {
-                log.warn(exception.getMessage(), exception.fillInStackTrace());
-                return httpService.onError(exchange, "Unable to verify RSA signature using configured PublicKey!",
-                        HttpStatus.BAD_REQUEST);
+            final ValidateTokenResponse validateTokenResponse = authServiceClient.validateToken(ValidateTokenRequest
+                    .builder()
+                    .token(token)
+                    .build());
+
+            if (!validateTokenResponse.getStatus()) {
+                log.warn("an error occured while validating token: {}", validateTokenResponse.getErrorMessage());
+                return httpService.onError(exchange, validateTokenResponse.getErrorMessage(), HttpStatus.valueOf(validateTokenResponse.getHttpCode()));
             }
 
             httpService.populateRequestWithHeaders(exchange, token, jwtService.getUsernameFromToken(token));

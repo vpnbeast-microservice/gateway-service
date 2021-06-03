@@ -34,16 +34,6 @@ public class JwtServiceImpl implements JwtService {
     private final AuthServiceClient authServiceClient;
 
     @Override
-    public Boolean isTokenValid(String token) {
-        final Date expiration = getClaimFromToken(token, Claims::getExpiration);
-        final boolean isExpired = expiration.before(new Date());
-        final UserRequest request = UserRequest.builder()
-                .userName(getUsernameFromToken(token))
-                .build();
-        return (authServiceClient.isValidUser(request).getStatus() && !isExpired);
-    }
-
-    @Override
     public ArrayList getRolesFromToken(String token) {
         Claims jwsMap = Jwts.parser().setSigningKey(getPublicKey(authenticationProperties.getPublicKeyString()))
                 .parseClaimsJws(token)
