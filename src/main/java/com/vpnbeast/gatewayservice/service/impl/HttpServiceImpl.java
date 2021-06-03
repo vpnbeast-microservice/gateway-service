@@ -4,9 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vpnbeast.gatewayservice.model.ExceptionInfo;
 import com.vpnbeast.gatewayservice.service.HttpService;
-import com.vpnbeast.gatewayservice.service.JwtService;
 import com.vpnbeast.gatewayservice.util.DateUtil;
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -17,7 +15,6 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-import java.util.ArrayList;
 
 @Slf4j
 @Service
@@ -25,7 +22,6 @@ import java.util.ArrayList;
 public class HttpServiceImpl implements HttpService {
 
     private final ObjectMapper objectMapper;
-    private final JwtService jwtService;
 
     @Override
     public Mono<Void> onError(ServerWebExchange exchange, String err, HttpStatus httpStatus) {
@@ -57,9 +53,8 @@ public class HttpServiceImpl implements HttpService {
     }
 
     @Override
-    public void populateRequestWithHeaders(ServerWebExchange exchange, String token, String username) {
-        Claims claims = jwtService.getAllClaimsFromToken(token);
-        String rolesString = String.join(", ", claims.get("roles", ArrayList.class));
+    public void populateRequestWithHeaders(ServerWebExchange exchange, String[] roles, String username) {
+        String rolesString = String.join(", ", roles);
         log.info("adding below headers to request:\nusername={}\nroles={}", username, rolesString);
         exchange.getRequest().mutate()
                 .header("username", username)

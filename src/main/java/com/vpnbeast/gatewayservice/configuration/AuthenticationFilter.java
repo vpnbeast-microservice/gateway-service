@@ -1,14 +1,9 @@
 package com.vpnbeast.gatewayservice.configuration;
 
 import com.vpnbeast.gatewayservice.client.AuthServiceClient;
-import com.vpnbeast.gatewayservice.model.UserRequest;
 import com.vpnbeast.gatewayservice.model.ValidateTokenRequest;
 import com.vpnbeast.gatewayservice.model.ValidateTokenResponse;
 import com.vpnbeast.gatewayservice.service.HttpService;
-import com.vpnbeast.gatewayservice.service.JwtService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -20,8 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.util.Date;
-
 @Slf4j
 @Component
 @RefreshScope
@@ -29,7 +22,6 @@ import java.util.Date;
 public class AuthenticationFilter implements GatewayFilter {
 
     private final RouterValidator routerValidator;
-    private final JwtService jwtService;
     private final HttpService httpService;
     private final AuthServiceClient authServiceClient;
 
@@ -62,7 +54,7 @@ public class AuthenticationFilter implements GatewayFilter {
                 return httpService.onError(exchange, validateTokenResponse.getErrorMessage(), HttpStatus.valueOf(validateTokenResponse.getHttpCode()));
             }
 
-            httpService.populateRequestWithHeaders(exchange, token, jwtService.getUsernameFromToken(token));
+            httpService.populateRequestWithHeaders(exchange, validateTokenResponse.getRoles(), validateTokenResponse.getUsername());
         }
 
         return chain.filter(exchange);

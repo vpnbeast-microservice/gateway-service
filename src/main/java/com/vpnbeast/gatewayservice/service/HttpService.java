@@ -10,6 +10,6 @@ public interface HttpService {
     Mono<Void> onError(ServerWebExchange exchange, String err, HttpStatus httpStatus);
     String getAuthHeader(ServerHttpRequest request);
     Boolean isAuthMissing(ServerHttpRequest request);
-    void populateRequestWithHeaders(ServerWebExchange exchange, String token, String username);
+    void populateRequestWithHeaders(ServerWebExchange exchange, String[] roles, String username);
 
 }

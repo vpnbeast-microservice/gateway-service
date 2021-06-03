@@ -12,6 +12,8 @@ public class ValidateTokenResponse {
     private String tag;
     private Boolean status;
     private String errorMessage;
+    private String username;
+    private String[] roles;
     private Integer httpCode;
     private String timestamp;
 
