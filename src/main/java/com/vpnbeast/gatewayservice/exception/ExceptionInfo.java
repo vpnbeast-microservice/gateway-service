@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @Builder
 public class ExceptionInfo {
 
-    private String tag;
     private String errorMessage;
     private Boolean status;
     private Integer httpCode;

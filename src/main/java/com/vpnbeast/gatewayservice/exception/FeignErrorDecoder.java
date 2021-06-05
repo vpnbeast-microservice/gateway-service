@@ -27,7 +27,6 @@ public class FeignErrorDecoder implements ErrorDecoder {
                     new TypeReference<>() {
                     });
             clientException = new ClientException(ExceptionInfo.builder()
-                    .tag(String.valueOf(content.getOrDefault("tag", "")))
                     .errorMessage(String.valueOf(content.getOrDefault("errorMessage", "unknown error occured at the backend")))
                     .status((Boolean) content.getOrDefault("status", false))
                     .httpCode(response.status())

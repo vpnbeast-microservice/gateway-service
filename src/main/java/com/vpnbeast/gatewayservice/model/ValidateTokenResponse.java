@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 @Setter
 public class ValidateTokenResponse {
 
-    private String tag;
     private Boolean status;
     private String errorMessage;
     private String username;
