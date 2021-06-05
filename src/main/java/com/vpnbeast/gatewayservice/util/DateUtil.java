@@ -14,10 +14,8 @@ public class DateUtil {
         return LocalDateTime.now();
     }
 
-    public static LocalDateTime convertDateToLocalDateTime(Date date) {
-        return date.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
+    public static String getCurrentLocalDateTimeString() {
+        return LocalDateTime.now().toString();
     }
 
 }

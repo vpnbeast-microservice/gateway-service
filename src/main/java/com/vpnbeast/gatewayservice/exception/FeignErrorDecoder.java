@@ -2,6 +2,7 @@ package com.vpnbeast.gatewayservice.exception;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vpnbeast.gatewayservice.util.DateUtil;
 import feign.Response;
 import feign.codec.ErrorDecoder;
 import lombok.RequiredArgsConstructor;
@@ -18,21 +19,25 @@ public class FeignErrorDecoder implements ErrorDecoder {
     private final ObjectMapper objectMapper;
 
     @Override
-    public BusinessException decode(String methodKey, Response response) {
-        BusinessException businessException = null;
+    public ClientException decode(String methodKey, Response response) {
+        ClientException clientException = null;
 
         try {
             Map<String, Object> content = objectMapper.readValue(response.body().asInputStream(),
                     new TypeReference<>() {
                     });
-            businessException = new BusinessException(String.valueOf(content.getOrDefault("tag", "")),
-                    String.valueOf(content.getOrDefault("errorMessage", "unknown error occured at the backend")),
-                    (Boolean) content.getOrDefault("status", false), response.status(), "");
+            clientException = new ClientException(ExceptionInfo.builder()
+                    .tag(String.valueOf(content.getOrDefault("tag", "")))
+                    .errorMessage(String.valueOf(content.getOrDefault("errorMessage", "unknown error occured at the backend")))
+                    .status((Boolean) content.getOrDefault("status", false))
+                    .httpCode(response.status())
+                    .timestamp(DateUtil.getCurrentLocalDateTime())
+                    .build());
         } catch (IOException e) {
             log.error(e.getMessage());
         }
 
-        return businessException;
+        return clientException;
     }
 
 }
