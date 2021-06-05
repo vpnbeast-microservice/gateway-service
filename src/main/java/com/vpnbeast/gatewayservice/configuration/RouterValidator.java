@@ -13,7 +13,8 @@ public class RouterValidator {
             "/users/register",
             "/users/reset-password",
             "/users/verify",
-            "/users/resend-verification-code"
+            "/users/resend-verification-code",
+            "/fallback"
     );
 
     public Predicate<ServerHttpRequest> isSecured = request -> AUTH_WHITELIST
