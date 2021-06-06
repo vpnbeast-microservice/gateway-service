@@ -55,7 +55,6 @@ public class HttpServiceImpl implements HttpService {
     @Override
     public void populateRequestWithHeaders(ServerWebExchange exchange, String[] roles, String username) {
         String rolesString = String.join(", ", roles);
-        log.info("adding below headers to request:\nusername={}\nroles={}", username, rolesString);
         exchange.getRequest().mutate()
                 .header("username", username)
                 .header("roles", rolesString)

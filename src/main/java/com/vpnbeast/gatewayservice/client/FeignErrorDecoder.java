@@ -1,7 +1,9 @@
-package com.vpnbeast.gatewayservice.exception;
+package com.vpnbeast.gatewayservice.client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vpnbeast.gatewayservice.exception.ClientException;
+import com.vpnbeast.gatewayservice.exception.ExceptionInfo;
 import com.vpnbeast.gatewayservice.util.DateUtil;
 import feign.Response;
 import feign.codec.ErrorDecoder;

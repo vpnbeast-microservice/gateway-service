@@ -43,7 +43,6 @@ public class AuthenticationFilter implements GatewayFilter {
                         .token(token)
                         .build());
             } catch (ClientException exception) {
-                // TODO: better way to handle that. when auth-service puts 401 on the response, response body is empty
                 final ExceptionInfo exceptionInfo = exception.getExceptionInfo();
                 if (exceptionInfo.getHttpCode() == 400)
                     return httpService.onError(exchange, exceptionInfo.getErrorMessage(), HttpStatus.UNAUTHORIZED);
