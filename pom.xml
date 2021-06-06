@@ -10,7 +10,7 @@
 
     <properties>
         <java.version>11</java.version>
-        <org.springframework.cloud.version>Hoxton.SR11</org.springframework.cloud.version>
+        <org.springframework.cloud.version>2020.0.3</org.springframework.cloud.version>
         <org.projectlombok.lombok.version>1.18.16</org.projectlombok.lombok.version>
         <io.jsonwebtoken.version>0.11.2</io.jsonwebtoken.version>
         <io.github.openfeign.version>10.10.1</io.github.openfeign.version>
@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.3.11.RELEASE</version>
+        <version>2.5.0</version>
     </parent>
 
     <dependencies>

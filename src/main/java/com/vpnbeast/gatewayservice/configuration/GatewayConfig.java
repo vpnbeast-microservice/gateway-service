@@ -22,15 +22,17 @@ public class GatewayConfig {
 
         return builder.routes()
                 .route("vpnbeast-service", r -> r.path(upstreamProperties.getVpnbeastServiceUris())
-                        .filters(f -> f.hystrix(config -> config
+                        /*.filters(f -> f.hystrix(config -> config
                                 .setName("fallback1")
-                                .setFallbackUri("forward:/fallback")).filter(filter))
+                                .setFallbackUri("forward:/fallback")).filter(filter))*/
+                        .filters(f -> f.filter(filter))
                         .uri(upstreamProperties.getVpnbeastServiceUrl()))
 
                 .route("auth-service", r -> r.path(upstreamProperties.getAuthServiceUris())
-                        .filters(f -> f.hystrix(config -> config
+                        /*.filters(f -> f.hystrix(config -> config
                                 .setName("fallback2")
-                                .setFallbackUri("forward:/fallback")).filter(filter))
+                                .setFallbackUri("forward:/fallback")).filter(filter))*/
+                        .filters(f -> f.filter(filter))
                         .uri(upstreamProperties.getAuthServiceUrl()))
                 .build();
     }
