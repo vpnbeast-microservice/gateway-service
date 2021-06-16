@@ -19,5 +19,6 @@ jobs:
           java-package: jdk
           architecture: x64
       - name: Run the Maven test phase
-        run: |
-          mvn clean verify
+        env:
+          SPRING_PROFILES_ACTIVE: unit-test
+        run: mvn clean verify

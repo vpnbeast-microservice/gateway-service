@@ -1,0 +1,59 @@
+---
+
+spring:
+  cloud:
+    gateway:
+      httpclient:
+        compression: true
+        connect-timeout: 2000
+        response-timeout: 5s
+      metrics:
+        enabled: true
+  config:
+    activate:
+      on-profile: unit-test
+
+server:
+  port: 8080
+
+management:
+  server:
+    port: 8081
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com:
+      vpnbeast:
+        gatewayservice: INFO
+
+feign:
+  okhttp:
+    enabled: true
+  # hystrix:
+  #   enabled: true
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: full
+  compression:
+    request:
+      enabled: true
+    response:
+      enabled: true
+
+gateway-service:
+  upstream:
+    vpnbeast-service:
+      url: http://localhost:9090
+      uris: /users/**,/servers/**,/admin/**
+    auth-service:
+      url: http://localhost:5000
+      uris: /auth/**
+  client:
+    auth-service:
+      url: http://localhost:5000
