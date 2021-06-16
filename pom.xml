@@ -11,6 +11,7 @@
     <properties>
         <java.version>11</java.version>
         <org.springframework.cloud.version>2020.0.3</org.springframework.cloud.version>
+        <org.springframework.cloud.hystrix.version>2.2.8.RELEASE</org.springframework.cloud.hystrix.version>
         <org.projectlombok.lombok.version>1.18.16</org.projectlombok.lombok.version>
         <io.jsonwebtoken.version>0.11.2</io.jsonwebtoken.version>
         <io.github.openfeign.version>10.10.1</io.github.openfeign.version>
@@ -35,6 +36,7 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+            <version>${org.springframework.cloud.hystrix.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
