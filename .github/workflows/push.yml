@@ -46,6 +46,8 @@ jobs:
         run: echo "release_version=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec | cut -d "=" -f 2)" >> $GITHUB_ENV
       - name: Run the Maven package phase
         run: mvn clean package
+        env:
+          SPRING_PROFILES_ACTIVE: unit-test
       - name: Build and tag Docker image
         run: |
           docker build . --file Dockerfile --build-arg JAR_FILE=target/gateway-service-${{ env.release_version }}.jar --tag vpnbeast/gateway-service:latest
