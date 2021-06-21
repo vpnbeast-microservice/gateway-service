@@ -5,8 +5,6 @@ spring:
     activate:
       on-profile: unit-test
   cloud:
-    config:
-      enabled: false
     gateway:
       httpclient:
         compression: true
