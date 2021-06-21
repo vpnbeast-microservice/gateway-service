@@ -1,7 +1,12 @@
 ---
 
 spring:
+  config:
+    activate:
+      on-profile: unit-test
   cloud:
+    config:
+      enabled: false
     gateway:
       httpclient:
         compression: true
@@ -9,9 +14,6 @@ spring:
         response-timeout: 5s
       metrics:
         enabled: true
-  config:
-    activate:
-      on-profile: unit-test
 
 server:
   port: 8080
