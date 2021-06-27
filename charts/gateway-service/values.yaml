@@ -4,17 +4,69 @@ deployment:
   name: gateway-service
   image: vpnbeast/gateway-service:1.0.8
   replicaCount: 1
-  serverPort: 8080
-  managementPort: 8081
-  managementEndpoint: /actuator/health
-  environment:
-    springActiveProfile: prod
-    configServiceHost: config-service
-    configServicePort: 8888
-    timezone: Europe/Istanbul
+  ports:
+    - containerPort: 8080
+      name: server-port
+    - containerPort: 8081
+      name: management-port
+  variables:
+    - name: TZ
+      value: Europe/Istanbul
+    - name: SPRING_PROFILES_ACTIVE
+      value: prod
+    - name: CONFIG_SERVICE_HOST
+      value: config-service
+    - name: CONFIG_SERVICE_PORT
+      value: 8888
+  probes:
+    livenessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /actuator/health
+        port: 8081
+        scheme: HTTP
+      initialDelaySeconds: 60
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /actuator/health
+        port: 8081
+        scheme: HTTP
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+
+service:
+  ports:
+    - name: server-port
+      port: 8080
+      targetPort: 8080
+    - name: management-port
+      port: 8081
+      targetPort: 8081
 
 ingress:
   enabled: false
+  rules:
+    - http:
+        paths:
+          - path: /gateway-service(/|$)(.*)
+            backend:
+              serviceName: gateway-service
+              servicePort: 8080
 
 gateway:
   enabled: true
+  routes:
+    - route:
+        - destination:
+            port:
+              number: 8080
+            host: gateway-service
+      match:
+        - uri:
+            prefix: /

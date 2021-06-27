@@ -5,20 +5,15 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: gateway-service
+  name: vpnbeast-service
 spec:
   hosts:
   - api.thevpnbeast.com
   gateways:
   - 'istio-system/istio-ingressgateway'
+  {{- if .Values.gateway.routes }}
   http:
-  - route:
-    - destination:
-        port:
-          number: {{ .Values.deployment.serverPort }}
-        host: {{ .Values.deployment.name | quote }}
-    match:
-    - uri:
-        prefix: /
+  {{- toYaml .Values.gateway.routes | nindent 2 }}
+  {{- end }}
 
 {{- end }}
