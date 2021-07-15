@@ -1,6 +1,7 @@
 package com.vpnbeast.gatewayservice.exception;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
