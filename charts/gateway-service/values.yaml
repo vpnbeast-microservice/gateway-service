@@ -2,7 +2,7 @@
 
 deployment:
   name: gateway-service
-  image: vpnbeast/gateway-service:1.0.10
+  image: vpnbeast/gateway-service:1.0.11
   replicaCount: 1
   ports:
     - containerPort: 8080
