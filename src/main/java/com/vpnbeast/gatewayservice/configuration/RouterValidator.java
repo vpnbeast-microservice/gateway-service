@@ -10,6 +10,7 @@ public class RouterValidator {
 
     public static final List<String> AUTH_WHITELIST = List.of(
             "/auth/authenticate",
+            "/auth/refresh",
             "/users/register",
             "/users/reset-password",
             "/users/verify",
